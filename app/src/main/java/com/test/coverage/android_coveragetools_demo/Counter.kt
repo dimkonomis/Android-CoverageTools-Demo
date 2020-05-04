@@ -14,4 +14,9 @@ class Counter {
         return value
     }
 
+    fun multiply(num: Int) : Int {
+        value *= num
+        return value
+    }
+
 }
