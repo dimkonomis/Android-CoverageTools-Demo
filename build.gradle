@@ -11,6 +11,8 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:0.16.0"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.8.0"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -22,6 +24,45 @@ junitJacoco {
     jacocoVersion = '0.8.4'
     includeNoLocationClasses = true
     includeInstrumentationCoverageInMergedReport = true
+}
+
+apply plugin: "org.sonarqube"
+
+sonarqube {
+    properties {
+        property "sonar.projectVersion", "1.0"
+        property "sonar.projectName", "Coverage Tools Demo"
+        property "sonar.projectKey", "dimkonomis_Android-CoverageTools-Demo"
+        property "sonar.organization", "dimkonomis"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.login", System.getenv('SONARCLOUD_TOKEN')
+        property "sonar.language", "kotlin"
+
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${rootProject.projectDir}/app/build/reports/jacoco/debug/jacoco.xml"
+
+        property "sonar.androidLint.reportPaths", "${rootProject.projectDir}/app/build/reports/lint-results.xml"
+        property "sonar.kotlin.detekt.reportPaths", "${rootProject.projectDir}/build/reports/detekt/detekt.xml"
+
+        property "sonar.pullrequest.key", System.getenv("TRAVIS_PULL_REQUEST")
+        property "sonar.pullrequest.branch", System.getenv("TRAVIS_PULL_REQUEST_BRANCH")
+        property "sonar.pullrequest.base", System.getenv("TRAVIS_BRANCH")
+        property "sonar.pullrequest.provider", "github"
+    }
+}
+
+apply plugin: "io.gitlab.arturbosch.detekt"
+
+detekt {
+    input = files("${rootProject.projectDir}/app")
+    buildUponDefaultConfig = true
+    ignoreFailures = true
+    autoCorrect = true
+    parallel = true
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
 }
 
 allprojects {
