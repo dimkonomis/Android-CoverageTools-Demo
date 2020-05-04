@@ -25,4 +25,15 @@ class CounterTest {
         assertEquals(test, value - 1)
     }
 
+    @Test
+    fun testMultiply() {
+        val counter = Counter()
+        val value = counter.value
+        val num = 2
+
+        val test = counter.multiply(num)
+
+        assertEquals(test, value * num)
+    }
+
 }
